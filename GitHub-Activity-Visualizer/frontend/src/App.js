@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-route
 import axios from 'axios';
 import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
+import Loading from './components/Loading';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -42,7 +43,7 @@ function App() {
         path="/dashboard"
         element={
           loading ? (
-            <div className="text-center mt-20">Loading...</div>
+            <Loading />
           ) : error ? (
             <div className="text-center mt-20 text-red-600">{error}</div>
           ) : (
