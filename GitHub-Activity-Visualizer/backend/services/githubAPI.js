@@ -4,6 +4,7 @@ const NodeCache = require('node-cache');
 const cache = new NodeCache({ stdTTL: 600 }); // 10 minutes TTL
 
 const GITHUB_API_BASE = 'https://api.github.com';
+const GITHUB_GRAPHQL_URL = 'https://api.github.com/graphql';
 
 class GitHubAPI {
   constructor() {
@@ -13,6 +14,14 @@ class GitHubAPI {
       headers: {
         'Authorization': this.token ? `token ${this.token}` : undefined,
         'Accept': 'application/vnd.github.v3+json'
+      }
+    });
+    this.graphqlClient = axios.create({
+      url: GITHUB_GRAPHQL_URL,
+      method: 'post',
+      headers: {
+        'Authorization': this.token ? `bearer ${this.token}` : undefined,
+        'Content-Type': 'application/json'
       }
     });
   }
@@ -67,6 +76,47 @@ class GitHubAPI {
       return reposData;
     } catch (error) {
       throw new Error(`Failed to fetch repos: ${error.message}`);
+    }
+  }
+
+  async getUserActivity(username) {
+    const cacheKey = `activity_${username}`;
+    const cached = cache.get(cacheKey);
+    if (cached) return cached;
+
+    try {
+      const query = `
+        query($userName: String!) {
+          user(login: $userName) {
+            contributionsCollection {
+              contributionCalendar {
+                colors
+                totalContributions
+                weeks {
+                  contributionDays {
+                    color
+                    contributionCount
+                    date
+                    weekday
+                  }
+                  firstDay
+                }
+              }
+            }
+          }
+        }
+      `;
+      const response = await this.graphqlClient({
+        data: {
+          query,
+          variables: { userName: username }
+        }
+      });
+      const activityData = response.data.data.user.contributionsCollection.contributionCalendar;
+      cache.set(cacheKey, activityData);
+      return activityData;
+    } catch (error) {
+      throw new Error(`Failed to fetch activity: ${error.message}`);
     }
   }
 }
