@@ -71,7 +71,7 @@ github-activity-visualizer/
 
 ### Configuration
 
-1. Create a `.env` file in the `backend` directory
+1. Create a `.env` file in the `backend` directory (copy from `.env.example`)
 2. Add your GitHub Personal Access Token:
    ```
    GITHUB_TOKEN=your_github_token_here
@@ -92,6 +92,37 @@ github-activity-visualizer/
    ```
 
 The application will be available at `http://localhost:3000` for the frontend and `http://localhost:5000` for the backend.
+
+## Deployment
+
+### Backend (Render)
+
+1. Create a new Web Service on Render
+2. Connect your GitHub repository
+3. Set the build command: `npm install`
+4. Set the start command: `npm start`
+5. Add environment variables:
+   - `GITHUB_TOKEN`: Your GitHub Personal Access Token
+   - `PORT`: 10000 (or Render's default)
+
+### Frontend (Vercel)
+
+1. Create a new project on Vercel
+2. Connect your GitHub repository
+3. Set the root directory to `frontend`
+4. Vercel will automatically detect the React app
+5. Add environment variable if needed (proxy is handled by Vercel)
+
+### Alternative Frontend (Netlify)
+
+1. Create a new site on Netlify
+2. Connect your GitHub repository
+3. Set the build command: `npm run build`
+4. Set the publish directory: `build`
+5. Add redirect rules in `_redirects` file:
+   ```
+   /*    /index.html   200
+   ```
 
 ## API Endpoints
 
